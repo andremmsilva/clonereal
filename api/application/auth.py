@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash
 from werkzeug.exceptions import BadRequest
-from .database import User
+from .database import User, engine, MySession
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 
@@ -27,4 +27,10 @@ def register():
 
     user.password = generate_password_hash(user.password)
 
-    return jsonify({"username": user.username}), 201
+    session = MySession(engine)
+
+    session.add(user)
+    session.commit()
+    session.close()
+
+    return jsonify({"username": data['username']}), 201

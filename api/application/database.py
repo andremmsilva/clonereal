@@ -1,13 +1,19 @@
 import string as Str
 from flask import current_app
 from sqlalchemy import Column, Integer, String, create_engine
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, Session
 from werkzeug.exceptions import UnprocessableEntity
 
 Base = declarative_base()
 
 engine = create_engine(
     current_app.config["SQLALCHEMY_DATABASE_URI"], echo=True, future=True)
+
+
+class MySession(Session):
+    def commit(self) -> None:
+        super().commit()
+        self.close()
 
 
 class User(Base):
