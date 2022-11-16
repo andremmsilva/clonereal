@@ -1,19 +1,13 @@
 import string as Str
 from flask import current_app
 from sqlalchemy import Column, Integer, String, create_engine
-from sqlalchemy.orm import declarative_base, Session
+from sqlalchemy.orm import declarative_base
 from werkzeug.exceptions import UnprocessableEntity
 
 Base = declarative_base()
 
 engine = create_engine(
     current_app.config["SQLALCHEMY_DATABASE_URI"], echo=True, future=True)
-
-
-class MySession(Session):
-    def commit(self) -> None:
-        super().commit()
-        self.close()
 
 
 class User(Base):
@@ -27,9 +21,19 @@ class User(Base):
         return f"{self.id} - {self.username}"
 
     def assert_valid_credentials(self):
-        if User.valid_username(self.username) and User.valid_password(self.password):
-            return
-        raise UnprocessableEntity("Invalid username or password")
+        if not User.valid_username(self.username) or not User.valid_password(self.password):
+            raise UnprocessableEntity("Invalid username or password")
+
+    def to_dict(self):
+        d = {}
+        for column in self.__table__.columns:
+            if column.name not in User.dont_serialize():
+                d[column.name] = str(getattr(self, column.name))
+        return d
+
+    @staticmethod
+    def dont_serialize():
+        return set(["password"])
 
     @staticmethod
     def valid_username(username: str) -> bool:

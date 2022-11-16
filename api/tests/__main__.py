@@ -1,5 +1,5 @@
 import unittest
 
 if __name__ == "__main__":
-    from .testregister import TestRegister
+    from .testauth import TestAuth
     unittest.main()

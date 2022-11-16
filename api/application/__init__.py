@@ -15,7 +15,6 @@ def create_app():
     with app.app_context():
         from . import auth, errors, database
         db = database.engine
-        print(db.url)
         if not database_exists(db.url):
             create_database(db.url)
         database.Base.metadata.create_all(db)
