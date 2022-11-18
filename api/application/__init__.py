@@ -20,6 +20,7 @@ def create_app():
         database.Base.metadata.create_all(db)
         app.register_blueprint(auth.bp)
         app.register_error_handler(400, errors.handle_bad_request)
+        app.register_error_handler(401, errors.handle_unauthorized)
         app.register_error_handler(422, errors.handle_unprocessable_entity)
 
     return app
